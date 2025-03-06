@@ -19,9 +19,9 @@ A Python-based ATM simulator implementing core banking functions with transactio
 ## Installation
 
 1. Clone/download the project files
-2. Save code as `atm_simulator.py`
+2. Save code as `ATM.py`
 
 ## Usage
 
 ```bash
-python atm_simulator.py
+python ATM.py
