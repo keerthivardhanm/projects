@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulkGenAI Ultra - Professional Bulk Image Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="/data/logo.png" sizes="64x64 96x96 128x128 256x256">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Chat History Sidebar -->
+    <div id="chatSidebar" class="chat-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-comments"></i> Chat History</h3>
+            <button id="closeSidebar" class="close-btn">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <button id="newChatBtn" class="new-chat-btn">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+            <div id="chatList" class="chat-list">
+                <!-- Chat sessions will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button id="toggleSidebar" class="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <h1>BulkGenAI Ultra</h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-circle">
+                            <span class="step-number">1</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <span class="step-title">Upload Data</span>
+                            <span class="step-desc">CSV, Excel or Text</span>
+                        </div>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-circle">
+                            <span class="step-number">2</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <span class="step-title">Upload Template</span>
+                            <span class="step-desc">Background Image</span>
+                        </div>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-circle">
+                            <span class="step-number">3</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <span class="step-title">Map Fields</span>
+                            <span class="step-desc">Position Text</span>
+                        </div>
+                    </div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-circle">
+                            <span class="step-number">4</span>
+                            <i class="fas fa-check step-check"></i>
+                        </div>
+                        <div class="step-info">
+                            <span class="step-title">Generate</span>
+                            <span class="step-desc">Export Images</span>
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Step 1: Data Upload -->
+            <section id="step1" class="step-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-upload"></i> Upload Your Data</h2>
+                    <p>Upload a CSV/Excel file or paste your data directly</p>
+                </div>
+
+                <div class="upload-tabs">
+                    <button class="tab-btn active" data-tab="file">
+                        <i class="fas fa-file-upload"></i> Upload File
+                    </button>
+                    <button class="tab-btn" data-tab="text">
+                        <i class="fas fa-keyboard"></i> Paste Text
+                    </button>
+                </div>
+
+                <div class="tab-content">
+                    <!-- File Upload Tab -->
+                    <div id="fileTab" class="tab-pane active">
+                        <div class="upload-area" id="dataUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3>Drop your file here or click to browse</h3>
+                            <p>Supports Excel (.xlsx), CSV, and text files</p>
+                            <input type="file" id="dataFileInput" accept=".xlsx,.xls,.csv,.txt" hidden>
+                            <button class="upload-btn" onclick="document.getElementById('dataFileInput').click()">
+                                <i class="fas fa-folder-open"></i> Choose File
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Text Input Tab -->
+                    <div id="textTab" class="tab-pane">
+                        <div class="text-input-container">
+                            <h3><i class="fas fa-edit"></i> Paste Your Data</h3>
+                            <textarea id="textDataInput" placeholder="Paste your data here. First line should be headers, separated by commas, tabs, or semicolons.
+
+Example:
+Name,Email,Company,Position
+John Doe,john@example.com,Acme Corp,Manager
+Jane Smith,jane@example.com,Tech Inc,Developer"></textarea>
+                            <button id="processTextBtn" class="process-btn">
+                                <i class="fas fa-cogs"></i> Process Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Preview -->
+                <div id="dataPreview" class="data-preview hidden">
+                    <div class="preview-header">
+                        <h3><i class="fas fa-table"></i> Data Preview</h3>
+                        <div class="preview-stats">
+                            <span class="stat-badge" id="columnCount">0 columns</span>
+                            <span class="stat-badge" id="rowCount">0 rows</span>
+                        </div>
+                    </div>
+                    <div class="preview-table-container">
+                        <table id="previewTable"></table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Template Upload -->
+            <section id="step2" class="step-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-image"></i> Upload Image Template</h2>
+                    <p>Upload an image to use as a template for your bulk generation</p>
+                </div>
+
+                <div class="template-upload-grid">
+                    <div class="upload-section">
+                        <div class="upload-area" id="templateUploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <h3>Drop your image here</h3>
+                            <p>PNG, JPG, GIF up to 10MB</p>
+                            <input type="file" id="templateFileInput" accept="image/*" hidden>
+                            <button class="upload-btn" onclick="document.getElementById('templateFileInput').click()">
+                                <i class="fas fa-camera"></i> Choose Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="preview-section">
+                        <div id="templatePreview" class="template-preview hidden">
+                            <h3><i class="fas fa-eye"></i> Template Preview</h3>
+                            <div class="image-container">
+                                <img id="templateImage" alt="Template">
+                                <div class="image-info">
+                                    <span id="imageDimensions"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Field Mapping -->
+            <section id="step3" class="step-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-map-marker-alt"></i> Map Data Fields</h2>
+                    <p>Drag and position your data fields on the template</p>
+                </div>
+
+                <div class="mapping-container">
+                    <!-- Field List -->
+                    <div class="field-list-container">
+                        <div class="field-header">
+                            <h3><i class="fas fa-list"></i> Available Fields</h3>
+                            <span id="fieldCount" class="field-count">0 fields</span>
+                        </div>
+                        <div id="fieldList" class="field-list">
+                            <!-- Fields will be populated here -->
+                        </div>
+
+                        <!-- Field Properties -->
+                        <div id="fieldProperties" class="field-properties hidden">
+                            <h3><i class="fas fa-cog"></i> Field Properties</h3>
+                            <div class="selected-field-info">
+                                <span id="selectedFieldName">No field selected</span>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-text-height"></i> Font Size</label>
+                                <div class="slider-container">
+                                    <input type="range" id="fontSizeSlider" min="8" max="72" value="16">
+                                    <span id="fontSizeValue">16px</span>
+                                </div>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-font"></i> Font Family</label>
+                                <select id="fontFamilySelect">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Georgia">Georgia</option>
+                                    <option value="Verdana">Verdana</option>
+                                    <option value="Impact">Impact</option>
+                                    <option value="Comic Sans MS">Comic Sans MS</option>
+                                </select>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-palette"></i> Text Color</label>
+                                <div class="color-input-container">
+                                    <input type="color" id="textColorPicker" value="#000000">
+                                    <input type="text" id="textColorInput" value="#000000" placeholder="#000000">
+                                </div>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-align-left"></i> Text Align</label>
+                                <div class="align-buttons">
+                                    <button class="align-btn active" data-align="left">
+                                        <i class="fas fa-align-left"></i>
+                                    </button>
+                                    <button class="align-btn" data-align="center">
+                                        <i class="fas fa-align-center"></i>
+                                    </button>
+                                    <button class="align-btn" data-align="right">
+                                        <i class="fas fa-align-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-arrows-alt"></i> Position</label>
+                                <div class="position-inputs">
+                                    <div class="input-group">
+                                        <label>X</label>
+                                        <input type="number" id="positionX" placeholder="X" min="0">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Y</label>
+                                        <input type="number" id="positionY" placeholder="Y" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="property-group">
+                                <label><i class="fas fa-expand-arrows-alt"></i> Size</label>
+                                <div class="position-inputs">
+                                    <div class="input-group">
+                                        <label>Width</label>
+                                        <input type="number" id="placeholderWidth" placeholder="Width" min="50">
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Height</label>
+                                        <input type="number" id="placeholderHeight" placeholder="Height" min="20">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="property-actions">
+                                <button id="deleteFieldBtn" class="action-btn delete-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                <button id="duplicateFieldBtn" class="action-btn duplicate-btn">
+                                    <i class="fas fa-copy"></i> Duplicate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Area -->
+                    <div class="canvas-container">
+                        <div class="canvas-controls">
+                            <div class="control-group">
+                                <button id="zoomInBtn" title="Zoom In"><i class="fas fa-search-plus"></i></button>
+                                <span id="zoomLevel">100%</span>
+                                <button id="zoomOutBtn" title="Zoom Out"><i class="fas fa-search-minus"></i></button>
+                                <button id="resetZoomBtn" title="Reset Zoom"><i class="fas fa-undo"></i></button>
+                            </div>
+                            <div class="control-group">
+                                <button id="toggleGridBtn" title="Toggle Grid"><i class="fas fa-th"></i></button>
+                                <button id="toggleSnapBtn" title="Snap to Grid"><i class="fas fa-magnet"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Responsive Canvas Wrapper -->
+                        <div class="canvas-wrapper" id="canvasWrapper">
+                            <!-- Template Image with object-fit: contain -->
+                            <img id="templateImageCanvas" class="template-image" alt="Template" style="display: none;">
+                            
+                            <!-- Placeholder Container - Perfectly overlays the image -->
+                            <div id="placeholderContainer" class="placeholder-container">
+                                <!-- Placeholders will be positioned here -->
+                            </div>
+                            
+                            <!-- Grid Overlay -->
+                            <div id="gridOverlay" class="grid-overlay hidden"></div>
+                        </div>
+                        
+                        <div class="canvas-info">
+                            <span id="canvasInfo">Canvas: 0 × 0px</span>
+                            <span id="placeholderCount">Placeholders: 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Controls -->
+                <div class="preview-controls" ></div>
+                    <div class="preview-navigation">
+                        <button id="prevRowBtn"><i class="fas fa-chevron-left"></i></button>
+                        <span id="rowIndicator">Row 1 of 0</span>
+                        <button id="nextRowBtn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4: Generate & Export -->
+            <section id="step4" class="step-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-download"></i> Generate & Export</h2>
+                    <p>Generate your personalized bulk images</p>
+                </div>
+
+                <div class="export-container">
+                    <div class="export-options">
+                        <h3><i class="fas fa-cogs"></i> Export Settings</h3>
+                        
+                        <div class="option-group">
+                            <label><i class="fas fa-file-export"></i> Export Format</label>
+                            <select id="exportFormat">
+                                <option value="pdf-single">PDF (1 per page)</option>
+                                <option value="pdf-double">PDF (2 per page)</option>
+                                <option value="pdf-quad">PDF (4 per page)</option>
+                                <option value="zip-png">ZIP (PNG Images)</option>
+                                <option value="zip-jpg">ZIP (JPG Images)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="export-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-images"></i>
+                                <div class="stat-content">
+                                    <span class="stat-label">Total Images</span>
+                                    <span id="totalImages" class="stat-value">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-map-pin"></i>
+                                <div class="stat-content">
+                                    <span class="stat-label">Mapped Fields</span>
+                                    <span id="mappedFields" class="stat-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="export-actions">
+                        <button id="generateBtn" class="generate-btn">
+                            <i class="fas fa-magic"></i>
+                            <span>Generate Images</span>
+                        </button>
+                        
+                        <div id="exportProgress" class="export-progress hidden">
+                            <div class="progress-bar-export">
+                                <div id="progressFill" class="progress-fill"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span id="progressText">Generating images...</span>
+                                <span id="progressPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- AI Chat Assistant -->
+        <div id="chatAssistant" class="chat-assistant">
+            <div class="chat-header">
+                <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+                <button id="toggleChat" class="toggle-chat">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="chat-content">
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message assistant-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            Hello! I'm your AI assistant. I can help you with layout optimization, field positioning, and design recommendations. What would you like to know?
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Ask for help with your layout...">
+                    <button id="sendChatBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <div class="spinner-icon">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p id="loadingText">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
